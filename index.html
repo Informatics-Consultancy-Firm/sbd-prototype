@@ -1,0 +1,1162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SBD ITN Distribution App</title>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --blue:#0056a8;--blue-d:#003d7a;--blue-l:#e8f1fa;
+  --teal:#0e8da1;--teal-l:#e0f5f8;
+  --violet:#6b28d4;--violet-l:#f0eaff;
+  --green:#1a9e45;--green-l:#e6f7ec;
+  --red:#c82333;--red-l:#fde8ea;
+  --orange:#d05a08;--orange-l:#fff0e6;
+  --amber:#c49000;--amber-l:#fff8e0;
+  --gray:#f4f6f9;--gray-d:#6c757d;
+  --text:#1a2236;--text-s:#5a6a82;--white:#fff;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'DM Sans',sans-serif;background:linear-gradient(135deg,#0d1b2a,#1a3050,#0d2840);min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:20px 10px;}
+
+/* PAGE HEADER */
+.ph{text-align:center;color:#fff;margin-bottom:18px;width:100%;}
+.ph .badge{display:inline-block;background:#ffc107;color:#003d7a;font-family:'Oswald',sans-serif;font-size:10px;font-weight:700;letter-spacing:3px;text-transform:uppercase;padding:4px 18px;border-radius:20px;margin-bottom:10px;}
+.ph h1{font-family:'Oswald',sans-serif;font-size:22px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:4px;}
+.ph p{font-size:12px;color:rgba(255,255,255,0.55);}
+
+/* STUDIO */
+.studio{display:flex;gap:28px;align-items:flex-start;justify-content:center;flex-wrap:wrap;max-width:1100px;width:100%;}
+
+/* PHONE */
+.phone{width:350px;height:700px;background:#111;border-radius:46px;border:8px solid #222;box-shadow:0 0 0 2px #333,0 30px 80px rgba(0,0,0,0.7),0 0 0 10px #1a1a1a;position:relative;overflow:hidden;flex-shrink:0;}
+.notch{position:absolute;top:0;left:50%;transform:translateX(-50%);width:120px;height:28px;background:#111;border-radius:0 0 18px 18px;z-index:20;}
+.pscreen{width:100%;height:100%;background:var(--gray);overflow:hidden;position:relative;}
+.screen{position:absolute;inset:0;overflow-y:auto;display:none;flex-direction:column;animation:si .28s ease;}
+.screen.active{display:flex;}
+@keyframes si{from{transform:translateX(24px);opacity:0}to{transform:translateX(0);opacity:1}}
+
+/* TOPBAR */
+.tb{padding:34px 14px 12px;display:flex;align-items:center;gap:10px;flex-shrink:0;color:#fff;}
+.tb.blue{background:var(--blue);}
+.tb.teal{background:var(--teal);}
+.tb.violet{background:var(--violet);}
+.tb.green{background:var(--green);}
+.tb.red{background:var(--red);}
+.tb.orange{background:var(--orange);}
+.tb.amber{background:var(--amber);}
+.tb.gray{background:#4a5568;}
+.tb-title{font-family:'Oswald',sans-serif;font-size:14px;font-weight:600;letter-spacing:.5px;flex:1;}
+.tb-sub{font-size:10px;opacity:.7;margin-top:1px;}
+.back{width:30px;height:30px;background:rgba(255,255,255,.18);border:none;border-radius:8px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;color:#fff;font-size:16px;}
+
+/* TABS */
+.tabs{display:flex;background:#fff;border-bottom:2px solid #e2e8f0;flex-shrink:0;}
+.tabt{flex:1;padding:10px 4px;text-align:center;font-size:10px;font-weight:600;letter-spacing:.4px;text-transform:uppercase;cursor:pointer;color:var(--text-s);border-bottom:3px solid transparent;transition:all .2s;}
+.tabt.active{color:var(--blue);border-bottom-color:var(--blue);}
+
+/* CONTENT */
+.cnt{flex:1;overflow-y:auto;padding:14px;}
+.cnt::-webkit-scrollbar{width:3px;}
+.cnt::-webkit-scrollbar-thumb{background:#ddd;border-radius:3px;}
+
+/* FORM */
+.fl{font-size:10.5px;font-weight:600;color:var(--text);letter-spacing:.4px;text-transform:uppercase;margin-bottom:4px;display:block;}
+.fi{width:100%;padding:10px 12px;border:2px solid #e2e8f0;border-radius:9px;font-family:'DM Sans',sans-serif;font-size:12.5px;color:var(--text);outline:none;transition:border .2s;background:#fff;}
+.fi:focus{border-color:var(--blue);}
+.fi[readonly]{background:#f8fafc;color:var(--text-s);}
+.fi.error{border-color:var(--red);background:var(--red-l);}
+.fi.ok{border-color:var(--green);}
+.fsel{width:100%;padding:10px 12px;border:2px solid #e2e8f0;border-radius:9px;font-family:'DM Sans',sans-serif;font-size:12.5px;color:var(--text);background:#fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%236c757d' stroke-width='1.5' fill='none'/%3E%3C/svg%3E") no-repeat right 12px center;appearance:none;outline:none;}
+.fsel:focus{border-color:var(--blue);}
+.fg{margin-bottom:12px;}
+.fhint{font-size:10px;color:var(--text-s);margin-top:3px;}
+.ferr{font-size:10px;color:var(--red);margin-top:3px;display:none;font-weight:600;}
+.ferr.show{display:block;}
+.frow{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.frow3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;}
+.frow4{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:6px;}
+.fsec{font-family:'Oswald',sans-serif;font-size:11px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--text-s);background:var(--gray);padding:7px 10px;border-radius:8px;margin:14px 0 10px;}
+
+/* CARDS & STATS */
+.srow{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;}
+.sc{background:#fff;border-radius:11px;padding:12px;box-shadow:0 2px 8px rgba(0,0,0,.07);}
+.sn{font-family:'Oswald',sans-serif;font-size:22px;font-weight:700;color:var(--blue);}
+.sl{font-size:10px;color:var(--text-s);margin-top:1px;}
+.sc.green .sn{color:var(--green);}
+.sc.orange .sn{color:var(--orange);}
+.sc.teal .sn{color:var(--teal);}
+.sc.red .sn{color:var(--red);}
+.mc{background:#fff;border-radius:11px;padding:13px 14px;box-shadow:0 2px 8px rgba(0,0,0,.06);display:flex;align-items:center;gap:12px;cursor:pointer;margin-bottom:8px;transition:transform .15s,box-shadow .15s;border:2px solid transparent;}
+.mc:hover{transform:translateY(-1px);box-shadow:0 4px 14px rgba(0,0,0,.1);}
+.mi{width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0;}
+.mt{font-size:12.5px;font-weight:600;color:var(--text);}
+.md{font-size:10.5px;color:var(--text-s);margin-top:1px;}
+.mar{font-size:16px;color:#ccc;}
+
+/* ALERTS */
+.al{border-radius:11px;padding:12px 14px;margin-bottom:12px;display:flex;gap:10px;align-items:flex-start;}
+.al.red{background:var(--red-l);border:2px solid var(--red);}
+.al.amber{background:var(--amber-l);border:2px solid var(--amber);}
+.al.green{background:var(--green-l);border:2px solid var(--green);}
+.al.blue{background:var(--blue-l);border:2px solid var(--blue);}
+.al-ico{font-size:16px;flex-shrink:0;margin-top:1px;}
+.al-t{font-size:11.5px;font-weight:700;margin-bottom:2px;}
+.al-b{font-size:10.5px;color:var(--text-s);line-height:1.5;}
+.al.red .al-t{color:var(--red);}
+.al.amber .al-t{color:var(--amber);}
+.al.green .al-t{color:var(--green);}
+.al.blue .al-t{color:var(--blue);}
+
+/* BUTTONS */
+.btn{width:100%;padding:12px;border:none;border-radius:10px;background:var(--blue);color:#fff;font-family:'Oswald',sans-serif;font-size:13px;font-weight:600;letter-spacing:.8px;cursor:pointer;transition:filter .2s;margin-top:10px;}
+.btn:hover{filter:brightness(1.1);}
+.btn.green{background:var(--green);}
+.btn.red{background:var(--red);}
+.btn.orange{background:var(--orange);}
+.btn.amber{background:var(--amber);}
+.btn.teal{background:var(--teal);}
+.btn.violet{background:var(--violet);}
+.btn.gray{background:#6c757d;}
+.btn.outline{background:#fff;color:var(--blue);border:2px solid var(--blue);}
+.btn:disabled{opacity:.5;cursor:not-allowed;filter:none;}
+.brow{display:flex;gap:8px;}
+.brow .btn{flex:1;margin-top:0;}
+
+/* TABLE */
+.tbl{width:100%;border-collapse:collapse;font-size:10.5px;background:#fff;border-radius:10px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,.06);}
+.tbl th{background:var(--blue);color:#fff;padding:7px 6px;text-align:center;font-size:9.5px;font-weight:700;letter-spacing:.4px;}
+.tbl td{padding:7px 6px;text-align:center;border-bottom:1px solid #f0f2f5;color:var(--text);}
+.tbl tr:last-child td{border-bottom:none;}
+.tbl .tot{font-weight:700;background:var(--blue-l)!important;}
+.tbl tr:nth-child(even) td{background:#f8fafc;}
+
+/* PROGRESS BAR */
+.pb{height:4px;background:#e2e8f0;border-radius:4px;overflow:hidden;margin-bottom:5px;}
+.pbf{height:100%;background:var(--blue);border-radius:4px;transition:width .4s;}
+
+/* BADGES */
+.bpill{display:inline-block;border-radius:10px;padding:2px 8px;font-size:9.5px;font-weight:700;}
+.bpill.green{background:var(--green-l);color:var(--green);}
+.bpill.amber{background:var(--amber-l);color:var(--amber);}
+.bpill.red{background:var(--red-l);color:var(--red);}
+.bpill.blue{background:var(--blue-l);color:var(--blue);}
+
+/* STOCK WIDGET */
+.stock-bar{background:#fff;border-radius:10px;padding:12px;box-shadow:0 2px 8px rgba(0,0,0,.06);margin-bottom:12px;}
+.stock-title{font-size:10px;font-weight:700;color:var(--text-s);letter-spacing:.5px;text-transform:uppercase;margin-bottom:8px;}
+.stock-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;}
+.stock-lbl{font-size:11px;color:var(--text);}
+.stock-val{font-family:'Oswald',sans-serif;font-size:16px;font-weight:700;color:var(--blue);}
+.stock-prog{height:6px;background:#e2e8f0;border-radius:3px;overflow:hidden;margin-bottom:10px;}
+.stock-fill{height:100%;border-radius:3px;transition:width .4s;}
+
+/* SPLASH */
+#scr-splash{background:linear-gradient(160deg,#0056a8,#003d7a,#00254d);align-items:center;justify-content:center;text-align:center;padding:30px 22px;}
+.spl-logo{width:68px;height:68px;background:#ffc107;border-radius:20px;display:flex;align-items:center;justify-content:center;font-family:'Oswald',sans-serif;font-size:20px;font-weight:700;color:#003d7a;margin:0 auto 14px;box-shadow:0 8px 24px rgba(255,193,7,.4);}
+.spl-t{font-family:'Oswald',sans-serif;font-size:20px;font-weight:700;color:#fff;letter-spacing:1px;margin-bottom:5px;}
+.spl-s{font-size:11px;color:rgba(255,255,255,.6);margin-bottom:32px;line-height:1.6;}
+.spl-pts{display:flex;gap:8px;justify-content:center;margin-bottom:36px;flex-wrap:wrap;}
+.pc{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);border-radius:20px;padding:5px 12px;font-size:10px;color:rgba(255,255,255,.85);font-weight:600;}
+.spl-btn{background:#ffc107;color:#003d7a;border:none;padding:13px 32px;border-radius:30px;font-family:'Oswald',sans-serif;font-size:14px;font-weight:700;letter-spacing:1px;cursor:pointer;box-shadow:0 4px 20px rgba(255,193,7,.4);}
+
+/* LOGIN */
+#scr-login{background:#fff;}
+.li-head{text-align:center;padding:30px 20px 16px;}
+.li-ico{width:52px;height:52px;background:var(--blue-l);border-radius:16px;display:flex;align-items:center;justify-content:center;margin:0 auto 10px;font-size:24px;}
+.li-t{font-family:'Oswald',sans-serif;font-size:18px;font-weight:700;color:var(--text);margin-bottom:3px;}
+.li-s{font-size:11.5px;color:var(--text-s);}
+.role-demo{background:var(--blue-l);border:1px solid #c5d8f0;border-radius:10px;padding:10px 12px;margin-bottom:12px;font-size:10.5px;}
+.role-demo strong{color:var(--blue);display:block;margin-bottom:4px;font-size:11px;}
+.role-demo span{color:var(--text-s);line-height:1.8;}
+
+/* INFO PANEL */
+.infop{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);border-radius:20px;padding:22px;max-width:290px;flex-shrink:0;color:#fff;}
+.infop h3{font-family:'Oswald',sans-serif;font-size:13px;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:14px;color:#ffc107;}
+.trail{display:flex;flex-direction:column;gap:5px;}
+.tli{display:flex;align-items:center;gap:9px;padding:7px 11px;border-radius:9px;font-size:11px;cursor:pointer;transition:background .2s;border:1px solid transparent;}
+.tli:hover{background:rgba(255,255,255,.1);}
+.tli.cur{background:rgba(255,193,7,.15);border-color:rgba(255,193,7,.3);color:#ffc107;}
+.tli.done{opacity:.8;}
+.tdot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
+.tli.done .tdot{background:var(--green);}
+.tli.cur .tdot{background:#ffc107;}
+.tli.todo .tdot{background:rgba(255,255,255,.2);}
+.idiv{height:1px;background:rgba(255,255,255,.1);margin:14px 0;}
+.inote{font-size:11px;color:rgba(255,255,255,.5);line-height:1.6;}
+.inote strong{color:rgba(255,255,255,.8);}
+
+/* Calc total box */
+.calc-box{background:var(--blue-l);border:2px solid var(--blue);border-radius:10px;padding:10px 14px;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between;}
+.calc-lbl{font-size:11px;font-weight:600;color:var(--blue);}
+.calc-val{font-family:'Oswald',sans-serif;font-size:24px;font-weight:700;color:var(--blue);}
+
+/* SUCCESS */
+#scr-success{background:linear-gradient(160deg,#0a7a32,#1a9e45);align-items:center;justify-content:center;text-align:center;padding:28px 20px;}
+.suc-ico{width:76px;height:76px;background:rgba(255,255,255,.2);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 18px;font-size:34px;}
+.suc-t{font-family:'Oswald',sans-serif;font-size:21px;color:#fff;font-weight:700;margin-bottom:6px;}
+.suc-s{font-size:11.5px;color:rgba(255,255,255,.8);line-height:1.6;margin-bottom:26px;}
+.suc-meta{background:rgba(255,255,255,.15);border-radius:12px;padding:14px;text-align:left;margin-bottom:22px;width:100%;}
+.suc-r{display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid rgba(255,255,255,.1);}
+.suc-r:last-child{border-bottom:none;}
+.suc-k{font-size:10.5px;color:rgba(255,255,255,.65);}
+.suc-v{font-size:11px;font-weight:700;color:#fff;}
+
+/* DISTRIBUTOR */
+.dist-card{background:#fff;border-radius:11px;padding:12px;box-shadow:0 2px 8px rgba(0,0,0,.07);margin-bottom:10px;}
+.dist-school{font-size:12.5px;font-weight:700;color:var(--text);margin-bottom:6px;}
+.dist-meta{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px;}
+.dist-prog-wrap{background:#e2e8f0;border-radius:6px;height:8px;overflow:hidden;margin-bottom:6px;}
+.dist-prog-fill{height:100%;border-radius:6px;transition:width .4s;}
+
+/* CLASS DISTRIBUTION TABLE */
+.class-dist-table{width:100%;border-collapse:collapse;margin-bottom:15px;}
+.class-dist-table th{background:var(--blue-l);color:var(--blue);font-size:10px;padding:8px 4px;text-align:center;}
+.class-dist-table td{padding:6px 4px;border-bottom:1px solid #e2e8f0;text-align:center;font-size:11px;}
+.class-dist-table input{width:55px;padding:4px;border:2px solid #e2e8f0;border-radius:6px;text-align:center;font-size:11px;font-family:'DM Sans',sans-serif;}
+.class-dist-table input:focus{border-color:var(--blue);outline:none;}
+.class-dist-table .gender-badge{font-size:8px;font-weight:600;color:var(--text-s);}
+.school-summary{background:var(--gray);border-radius:8px;padding:8px;margin-bottom:12px;font-size:11px;display:flex;justify-content:space-between;}
+.school-summary span{font-weight:700;color:var(--blue);}
+
+/* SECRET CODE modal */
+.modal-ov{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:100;display:flex;align-items:flex-end;justify-content:center;display:none;}
+.modal-ov.show{display:flex;}
+.modal-box{background:#fff;border-radius:20px 20px 0 0;padding:24px 20px;width:350px;max-width:100%;}
+.modal-t{font-family:'Oswald',sans-serif;font-size:16px;font-weight:700;color:var(--text);margin-bottom:6px;}
+.modal-s{font-size:11.5px;color:var(--text-s);margin-bottom:16px;}
+
+/* NAV */
+.nav{background:#fff;border-top:1px solid #eee;display:flex;padding:6px 0 2px;flex-shrink:0;}
+.ni{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer;padding:4px;}
+.ni svg{width:20px;height:20px;stroke:#ccc;fill:none;stroke-width:2;}
+.ni.active svg{stroke:var(--blue);}
+.ni span{font-size:8.5px;color:#ccc;font-weight:600;}
+.ni.active span{color:var(--blue);}
+.ni.teal.active svg{stroke:var(--teal);}
+.ni.teal.active span{color:var(--teal);}
+.ni.violet.active svg{stroke:var(--violet);}
+.ni.violet.active span{color:var(--violet);}
+</style>
+</head>
+<body>
+
+<div class="ph">
+  <div class="badge">SBD ITN Distribution · Sierra Leone · ICF-SL</div>
+  <h1>SBD ITN App — Complete Flow</h1>
+  <p>Role-based access · Full stock tracking · Class/Gender distribution</p>
+</div>
+
+<div class="studio">
+<!-- ═══════ PHONE ═══════ -->
+<div style="display:flex;flex-direction:column;align-items:center;gap:12px;">
+<div class="phone">
+  <div class="notch"></div>
+  <div class="pscreen">
+
+  <!-- ── SPLASH SCREEN ── -->
+  <div class="screen active" id="scr-splash">
+    <div class="spl-logo">ITN</div>
+    <div class="spl-t">SBD ITN Distribution</div>
+    <div class="spl-s">School-Based Insecticide-Treated<br>Net Distribution · Sierra Leone</div>
+    <div class="spl-pts">
+      <span class="pc">MoHS</span>
+      <span class="pc">NMCP</span>
+      <span class="pc">PMI Evolve</span>
+      <span class="pc">ICF-SL</span>
+    </div>
+    <button class="spl-btn" onclick="go('scr-login')">GET STARTED →</button>
+  </div>
+
+  <!-- ── LOGIN SCREEN ── -->
+  <div class="screen" id="scr-login">
+    <div class="li-head">
+      <div class="li-ico">🔐</div>
+      <div class="li-t">Sign In</div>
+      <div class="li-s">Enter your assigned credentials</div>
+    </div>
+    <div style="padding:0 18px 20px;">
+      <div class="role-demo">
+        <strong>Demo Accounts:</strong>
+        <span>
+          dhmt_kono / pass123 → DHMT Officer<br>
+          phu_koidu / pass123 → PHU Incharge<br>
+          dist_aminata / pass123 → Distributor
+        </span>
+      </div>
+      <div class="fg">
+        <label class="fl">Username</label>
+        <input class="fi" id="inp-user" type="text" placeholder="e.g. dhmt_kono" autocomplete="off">
+      </div>
+      <div class="fg">
+        <label class="fl">Password</label>
+        <input class="fi" id="inp-pass" type="password" placeholder="••••••••">
+      </div>
+      <div class="ferr show" id="login-err" style="display:none;"></div>
+      <button class="btn" onclick="doLogin()" style="margin-top:12px;">SIGN IN</button>
+    </div>
+  </div>
+
+  <!-- ── DHMT DASHBOARD ── -->
+  <div class="screen" id="scr-dhmt">
+    <div class="tb blue">
+      <div style="flex:1;">
+        <div style="font-size:10px;opacity:.7;">DHMT OFFICER</div>
+        <div class="tb-title" id="dhmt-name-tb">Kono District</div>
+      </div>
+      <div style="cursor:pointer;font-size:18px;" onclick="go('scr-login')" title="Logout">⏻</div>
+    </div>
+    <div class="cnt">
+      <div class="srow">
+        <div class="sc"><div class="sn" id="dhmt-stat-total">0</div><div class="sl">Total Dispatches</div></div>
+        <div class="sc green"><div class="sn" id="dhmt-stat-recv">0</div><div class="sl">Confirmed Received</div></div>
+        <div class="sc orange"><div class="sn" id="dhmt-stat-pending">0</div><div class="sl">Pending</div></div>
+        <div class="sc red"><div class="sn" id="dhmt-stat-issues">0</div><div class="sl">Issues</div></div>
+      </div>
+      <div class="mc" onclick="go('scr-dhmt-dispatch')">
+        <div class="mi" style="background:#e8f0fe;">📦</div>
+        <div style="flex:1;"><div class="mt">New ITN Dispatch</div><div class="md">Send ITNs to a PHU</div></div>
+        <div class="mar">›</div>
+      </div>
+      <div class="mc" onclick="go('scr-dhmt-list')">
+        <div class="mi" style="background:#fff0e6;">📋</div>
+        <div style="flex:1;"><div class="mt">Dispatch Records</div><div class="md" id="dhmt-list-summary">View all dispatches</div></div>
+        <div class="mar">›</div>
+      </div>
+    </div>
+    <div class="nav">
+      <div class="ni active"><svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg><span>Home</span></div>
+      <div class="ni" onclick="go('scr-dhmt-dispatch')"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg><span>Dispatch</span></div>
+      <div class="ni" onclick="go('scr-dhmt-list')"><svg viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg><span>Records</span></div>
+    </div>
+  </div>
+
+  <!-- ── DHMT NEW DISPATCH ── -->
+  <div class="screen" id="scr-dhmt-dispatch">
+    <div class="tb blue">
+      <button class="back" onclick="go('scr-dhmt')">‹</button>
+      <div><div class="tb-title">New ITN Dispatch</div><div class="tb-sub">Fill all fields</div></div>
+    </div>
+    <div class="cnt">
+      <div class="fsec">📋 DISPATCH DETAILS</div>
+      <div class="frow">
+        <div class="fg"><label class="fl">Date</label><input class="fi" id="d-date" readonly></div>
+        <div class="fg"><label class="fl">Time</label><input class="fi" id="d-time" readonly></div>
+      </div>
+      <div class="fg"><label class="fl">DHMT Officer</label><input class="fi" id="d-officer" readonly></div>
+      <div class="fg"><label class="fl">Telephone</label><input class="fi" id="d-officer-tel" readonly></div>
+      <div class="fg">
+        <label class="fl">Destination PHU <span style="color:red">*</span></label>
+        <select class="fsel" id="d-dest">
+          <option value="">— Select facility —</option>
+        </select>
+        <div class="ferr" id="err-dest">Required</div>
+      </div>
+      <div class="fsec">🦟 ITN QUANTITIES</div>
+      <div class="frow">
+        <div class="fg">
+          <label class="fl">PBO Qty</label>
+          <input class="fi" id="d-pbo" type="number" min="0" value="0" oninput="calcTotal()">
+        </div>
+        <div class="fg">
+          <label class="fl">IG2 Qty</label>
+          <input class="fi" id="d-ig2" type="number" min="0" value="0" oninput="calcTotal()">
+        </div>
+      </div>
+      <div class="calc-box">
+        <span class="calc-lbl">TOTAL</span>
+        <span class="calc-val" id="d-total">0</span>
+      </div>
+      <div class="ferr" id="err-qty">Total must be > 0</div>
+      <div class="fsec">🚗 VEHICLE & DRIVER</div>
+      <div class="fg"><input class="fi" id="d-vehicle" placeholder="Vehicle Number"></div>
+      <div class="fg"><input class="fi" id="d-driver" placeholder="Driver Name"></div>
+      <div class="fg"><input class="fi" id="d-driver-tel" placeholder="Driver Telephone"></div>
+      <button class="btn green" onclick="submitDispatch()">✅ CONFIRM DISPATCH</button>
+    </div>
+  </div>
+
+  <!-- ── DHMT DISPATCH LIST ── -->
+  <div class="screen" id="scr-dhmt-list">
+    <div class="tb blue">
+      <button class="back" onclick="go('scr-dhmt')">‹</button>
+      <div class="tb-title">Dispatch Records</div>
+    </div>
+    <div class="cnt" id="dhmt-dispatch-list"></div>
+  </div>
+
+  <!-- ── PHU DASHBOARD ── -->
+  <div class="screen" id="scr-phu">
+    <div class="tb teal">
+      <div style="flex:1;">
+        <div style="font-size:10px;opacity:.7;">PHU INCHARGE</div>
+        <div class="tb-title" id="phu-name-tb">Koidu Govt Hospital</div>
+      </div>
+      <div style="cursor:pointer;font-size:18px;" onclick="go('scr-login')">⏻</div>
+    </div>
+    <div class="tabs">
+      <div class="tabt active" onclick="phuTab(1)">📥 Receive</div>
+      <div class="tabt" onclick="phuTab(2)">📤 Dispatch</div>
+      <div class="tabt" onclick="phuTab(3)">📦 Stock</div>
+    </div>
+    <div id="phu-t1" class="cnt">
+      <div class="al blue">
+        <div class="al-ico">🔔</div>
+        <div><div class="al-t">Pending Shipments</div><div class="al-b">Verify and confirm receipt</div></div>
+      </div>
+      <div class="fsec">📋 RECEIPT DETAILS</div>
+      <div class="frow">
+        <div class="fg"><input class="fi" id="p-date" readonly></div>
+        <div class="fg"><input class="fi" id="p-time" readonly></div>
+      </div>
+      <div class="fg"><input class="fi" id="p-staff" readonly></div>
+      <div class="fg">
+        <select class="fsel" id="p-dispatch-ref" onchange="loadDispatchRef()">
+          <option value="">Select Dispatch</option>
+        </select>
+      </div>
+      <div id="p-dispatch-preview" class="al blue" style="display:none;"></div>
+      <div class="frow">
+        <div class="fg"><input class="fi" id="p-pbo-recv" type="number" placeholder="PBO Received" oninput="checkPHUReceipt()"></div>
+        <div class="fg"><input class="fi" id="p-ig2-recv" type="number" placeholder="IG2 Received" oninput="checkPHUReceipt()"></div>
+      </div>
+      <div id="p-match-box" style="display:none;"></div>
+      <button class="btn teal" id="p-recv-btn" onclick="submitPHUReceipt()" disabled>CONFIRM RECEIPT</button>
+    </div>
+    <div id="phu-t2" class="cnt" style="display:none;">
+      <div id="phu-stock-preview2" class="stock-bar"></div>
+      <div class="fsec">📤 DISPATCH TO DISTRIBUTOR</div>
+      <div class="frow">
+        <div class="fg"><input class="fi" id="pd-date" readonly></div>
+        <div class="fg"><input class="fi" id="pd-time" readonly></div>
+      </div>
+      <div class="fg">
+        <select class="fsel" id="pd-dist">
+          <option value="">Select Distributor</option>
+          <option value="Aminata Turay">Aminata Turay</option>
+          <option value="Ibrahim Kanu">Ibrahim Kanu</option>
+        </select>
+      </div>
+      <div class="frow">
+        <div class="fg"><input class="fi" id="pd-pbo" type="number" placeholder="PBO" oninput="checkPHUDispatch()"></div>
+        <div class="fg"><input class="fi" id="pd-ig2" type="number" placeholder="IG2" oninput="checkPHUDispatch()"></div>
+      </div>
+      <div id="pd-err" class="ferr"></div>
+      <div class="calc-box">
+        <span class="calc-lbl">TOTAL</span>
+        <span class="calc-val" id="pd-total">0</span>
+      </div>
+      <button class="btn teal" id="pd-btn" onclick="submitPHUDispatch()">DISPATCH</button>
+      <div class="fsec">🌙 END-OF-DAY RETURNS</div>
+      <div class="fg">
+        <select class="fsel" id="ret-dist">
+          <option value="">Select Distributor</option>
+        </select>
+      </div>
+      <div class="frow">
+        <div class="fg"><input class="fi" id="ret-pbo" type="number" placeholder="PBO Returned"></div>
+        <div class="fg"><input class="fi" id="ret-ig2" type="number" placeholder="IG2 Returned"></div>
+      </div>
+      <button class="btn orange" onclick="showReturnModal()">CONFIRM RETURN</button>
+    </div>
+    <div id="phu-t3" class="cnt" style="display:none;">
+      <div id="phu-stock-detail"></div>
+    </div>
+  </div>
+
+  <!-- ── DISTRIBUTOR DASHBOARD ── -->
+  <div class="screen" id="scr-dist">
+    <div class="tb violet">
+      <div style="flex:1;">
+        <div style="font-size:10px;opacity:.7;">DISTRIBUTOR</div>
+        <div class="tb-title" id="dist-name-tb">Aminata Turay</div>
+      </div>
+      <div style="cursor:pointer;font-size:18px;" onclick="go('scr-login')">⏻</div>
+    </div>
+    <div class="tabs">
+      <div class="tabt active" onclick="distTab(1)">🦟 Distribute</div>
+      <div class="tabt" onclick="distTab(2)">🏫 Schools</div>
+      <div class="tabt" onclick="distTab(3)">📊 Summary</div>
+    </div>
+    
+    <!-- Distribute Tab -->
+    <div id="dist-t1" class="cnt">
+      <div id="dist-stock-preview" class="stock-bar"></div>
+      <div class="fsec">🏫 DISTRIBUTE TO SCHOOL (CLASS 1-5)</div>
+      <div class="fg">
+        <select class="fsel" id="ds-school" onchange="loadSchoolClassData()">
+          <option value="">Select School</option>
+          <option value="Koidu Primary School">Koidu Primary School</option>
+          <option value="Nimikoro Govt Primary">Nimikoro Govt Primary</option>
+          <option value="Wona Primary School">Wona Primary School</option>
+        </select>
+      </div>
+      <div id="ds-school-summary" class="school-summary" style="display:none;"></div>
+      <div id="ds-class-table" style="display:none;">
+        <table class="class-dist-table">
+          <thead>
+            <tr><th>Class</th><th>Boys</th><th>Boys ITN</th><th>Girls</th><th>Girls ITN</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>1</td><td id="class1-boys-count">0</td><td><input type="number" id="class1-boys" class="class-input" value="0" min="0" oninput="validateClassDistribution()"></td><td id="class1-girls-count">0</td><td><input type="number" id="class1-girls" class="class-input" value="0" min="0" oninput="validateClassDistribution()"></td></tr>
+            <tr><td>2</td><td id="class2-boys-count">0</td><td><input type="number" id="class2-boys" class="class-input" value="0" min="0" oninput="validateClassDistribution()"></td><td id="class2-girls-count">0</td><td><input type="number" id="class2-girls" class="class-input" value="0" min="0" oninput="validateClassDistribution()"></td></tr>
+            <tr><td>3</td><td id="class3-boys-count">0</td><td><input type="number" id="class3-boys" class="class-input" value="0" min="0" oninput="validateClassDistribution()"></td><td id="class3-girls-count">0</td><td><input type="number" id="class3-girls" class="class-input" value="0" min="0" oninput="validateClassDistribution()"></td></tr>
+            <tr><td>4</td><td id="class4-boys-count">0</td><td><input type="number" id="class4-boys" class="class-input" value="0" min="0" oninput="validateClassDistribution()"></td><td id="class4-girls-count">0</td><td><input type="number" id="class4-girls" class="class-input" value="0" min="0" oninput="validateClassDistribution()"></td></tr>
+            <tr><td>5</td><td id="class5-boys-count">0</td><td><input type="number" id="class5-boys" class="class-input" value="0" min="0" oninput="validateClassDistribution()"></td><td id="class5-girls-count">0</td><td><input type="number" id="class5-girls" class="class-input" value="0" min="0" oninput="validateClassDistribution()"></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="calc-box" id="ds-totals-box" style="display:none;">
+        <span class="calc-lbl">TOTAL ITNs</span>
+        <span class="calc-val" id="ds-total">0</span>
+      </div>
+      <div id="ds-err" class="ferr"></div>
+      <button class="btn violet" id="ds-btn" onclick="submitClassDistribution()" disabled>RECORD DISTRIBUTION</button>
+    </div>
+
+    <!-- Schools Tab -->
+    <div id="dist-t2" class="cnt" style="display:none;">
+      <div class="fsec">📋 SCHOOL PROGRESS</div>
+      <div id="dist-schools-list"></div>
+    </div>
+
+    <!-- Summary Tab -->
+    <div id="dist-t3" class="cnt" style="display:none;">
+      <div class="fsec">📊 CLASS/GENDER SUMMARY</div>
+      <div id="dist-summary"></div>
+    </div>
+  </div>
+
+  <!-- ── SUCCESS SCREEN ── -->
+  <div class="screen" id="scr-success">
+    <div style="background:linear-gradient(160deg,#0a7a32,#1a9e45);flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:28px 20px;">
+      <div class="suc-ico">✅</div>
+      <div class="suc-t" id="suc-title">Success!</div>
+      <div class="suc-s" id="suc-sub">Action completed successfully</div>
+      <div class="suc-meta" id="suc-meta"></div>
+      <button class="spl-btn" style="background:#fff;color:var(--green);" onclick="goDash()">← BACK TO DASHBOARD</button>
+    </div>
+  </div>
+
+  </div>
+</div>
+<div style="text-align:center;color:rgba(255,255,255,.3);font-size:11px;">Tap to navigate · Demo mode</div>
+</div>
+
+<!-- ── INFO PANEL ── -->
+<div class="infop">
+  <h3>📍 User Journey</h3>
+  <div class="trail" id="trail"></div>
+  <div class="idiv"></div>
+  <div class="inote" id="inote">Use demo credentials to explore</div>
+</div>
+
+</div>
+
+<!-- ── RETURN MODAL ── -->
+<div class="modal-ov" id="modal-return">
+  <div class="modal-box">
+    <div class="modal-t">🔒 Confirm Return</div>
+    <div class="modal-s">Enter secret code to verify</div>
+    <div class="fg"><input class="fi" id="ret-code" type="password" placeholder="Secret code"></div>
+    <div class="ferr" id="ret-code-err">Invalid code</div>
+    <div class="brow">
+      <button class="btn outline" onclick="closeModal()">CANCEL</button>
+      <button class="btn green" onclick="confirmReturn()">CONFIRM</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ==================== DATA ====================
+const USERS = {
+  dhmt_kono: {pass:'pass123', role:'dhmt', name:'Mohamed Koroma', phone:'076-234567', district:'Kono District',
+    facilities:['Koidu Govt Hospital','Tombu CHC','Nimikoro CHC','Wona CHC']},
+  phu_koidu: {pass:'pass123', role:'phu', name:'Mariama Conteh', phone:'078-345678', facility:'Koidu Govt Hospital'},
+  dist_aminata: {pass:'pass123', role:'dist', name:'Aminata Turay', phone:'077-456789',
+    allocated: {pbo:350, ig2:150},
+    schools: [
+      {name:'Koidu Primary School', target:250, classes:[
+        {class:1,boys:28,girls:24}, {class:2,boys:30,girls:26}, {class:3,boys:25,girls:22},
+        {class:4,boys:27,girls:23}, {class:5,boys:22,girls:23}
+      ]},
+      {name:'Nimikoro Govt Primary', target:195, classes:[
+        {class:1,boys:20,girls:18}, {class:2,boys:22,girls:19}, {class:3,boys:18,girls:20},
+        {class:4,boys:19,girls:17}, {class:5,boys:21,girls:21}
+      ]},
+      {name:'Wona Primary School', target:180, classes:[
+        {class:1,boys:19,girls:17}, {class:2,boys:21,girls:18}, {class:3,boys:17,girls:16},
+        {class:4,boys:18,girls:19}, {class:5,boys:18,girls:17}
+      ]}
+    ]
+  }
+};
+
+const SECRET_CODE = '1234';
+let S = {
+  user: null, role: null,
+  dispatches: [
+    {id:'DSP-0037', dest:'Koidu Govt Hospital', pbo:350, ig2:150, total:500, date:'10 Jun 2025', officer:'Mohamed Koroma', status:'received'},
+    {id:'DSP-0038', dest:'Tombu CHC', pbo:200, ig2:150, total:350, date:'12 Jun 2025', officer:'Mohamed Koroma', status:'dispatched'},
+  ],
+  phuStock: {pbo:720, ig2:350},
+  phuDispatched: [{dist:'Aminata Turay', pbo:350, ig2:150, total:500, date:'16 Jun 2025', returned:false}],
+  distDistributed: {}
+};
+
+// ==================== NAVIGATION ====================
+let curScreen = 'scr-splash';
+function go(id) {
+  document.querySelector('.screen.active')?.classList.remove('active');
+  document.getElementById(id)?.classList.add('active');
+  curScreen = id;
+  updateTrail();
+}
+function goDash() {
+  if (S.role === 'dhmt') go('scr-dhmt');
+  else if (S.role === 'phu') go('scr-phu');
+  else if (S.role === 'dist') go('scr-dist');
+  else go('scr-login');
+}
+
+// ==================== LOGIN ====================
+function doLogin() {
+  const u = document.getElementById('inp-user').value.trim();
+  const p = document.getElementById('inp-pass').value.trim();
+  const err = document.getElementById('login-err');
+  
+  if (!USERS[u] || USERS[u].pass !== p) {
+    err.textContent = 'Invalid credentials';
+    err.style.display = 'block';
+    return;
+  }
+  
+  err.style.display = 'none';
+  S.user = USERS[u];
+  S.role = USERS[u].role;
+  initRole();
+}
+
+function initRole() {
+  const now = new Date();
+  const dateStr = now.toLocaleDateString('en-GB', {day:'2-digit',month:'short',year:'numeric'});
+  const timeStr = now.toLocaleTimeString('en-GB', {hour:'2-digit',minute:'2-digit'});
+
+  if (S.role === 'dhmt') {
+    document.getElementById('dhmt-name-tb').textContent = S.user.name + ' · ' + S.user.district;
+    document.getElementById('d-date').value = dateStr;
+    document.getElementById('d-time').value = timeStr;
+    document.getElementById('d-officer').value = S.user.name;
+    document.getElementById('d-officer-tel').value = S.user.phone;
+    
+    const dd = document.getElementById('d-dest');
+    dd.innerHTML = '<option value="">Select facility</option>';
+    S.user.facilities.forEach(f => {
+      const o = document.createElement('option');
+      o.value = f;
+      o.textContent = f;
+      dd.appendChild(o);
+    });
+    
+    updateDashboardStats();
+    renderDHMTList();
+    go('scr-dhmt');
+  }
+  else if (S.role === 'phu') {
+    document.getElementById('phu-name-tb').textContent = S.user.name + ' · ' + S.user.facility;
+    ['p-date','pd-date'].forEach(id => document.getElementById(id).value = dateStr);
+    ['p-time','pd-time'].forEach(id => document.getElementById(id).value = timeStr);
+    document.getElementById('p-staff').value = S.user.name;
+    document.getElementById('pd-incharge').value = S.user.name;
+    
+    const dr = document.getElementById('p-dispatch-ref');
+    dr.innerHTML = '<option value="">Select dispatch</option>';
+    S.dispatches.filter(d => d.dest === S.user.facility && d.status === 'dispatched').forEach(d => {
+      const o = document.createElement('option');
+      o.value = d.id;
+      o.textContent = d.id + ' (' + d.total + ' ITNs)';
+      dr.appendChild(o);
+    });
+    
+    renderPHUStock();
+    renderPHUDispatchedList();
+    go('scr-phu');
+  }
+  else if (S.role === 'dist') {
+    document.getElementById('dist-name-tb').textContent = S.user.name;
+    renderDistStock();
+    renderSchoolsList();
+    renderDistSummary();
+    go('scr-dist');
+  }
+}
+
+// ==================== DHMT FUNCTIONS ====================
+function calcTotal() {
+  const pbo = parseInt(document.getElementById('d-pbo').value) || 0;
+  const ig2 = parseInt(document.getElementById('d-ig2').value) || 0;
+  document.getElementById('d-total').textContent = pbo + ig2;
+}
+
+function submitDispatch() {
+  const dest = document.getElementById('d-dest').value;
+  const pbo = parseInt(document.getElementById('d-pbo').value) || 0;
+  const ig2 = parseInt(document.getElementById('d-ig2').value) || 0;
+  const vehicle = document.getElementById('d-vehicle').value.trim();
+  const driver = document.getElementById('d-driver').value.trim();
+  const driverTel = document.getElementById('d-driver-tel').value.trim();
+  
+  if (!dest || pbo+ig2 === 0 || !vehicle || !driver || !driverTel) {
+    alert('Please fill all required fields');
+    return;
+  }
+  
+  const id = 'DSP-' + String(S.dispatches.length + 40).padStart(4,'0');
+  S.dispatches.push({
+    id, dest, pbo, ig2, total: pbo+ig2,
+    date: new Date().toLocaleDateString('en-GB', {day:'2-digit',month:'short',year:'numeric'}),
+    officer: S.user.name, status: 'dispatched', vehicle, driver, driverTel
+  });
+  
+  updateDashboardStats();
+  document.getElementById('d-pbo').value = 0;
+  document.getElementById('d-ig2').value = 0;
+  document.getElementById('d-total').textContent = '0';
+  document.getElementById('d-dest').value = '';
+  document.getElementById('d-vehicle').value = '';
+  document.getElementById('d-driver').value = '';
+  document.getElementById('d-driver-tel').value = '';
+  
+  showSuccess('Dispatch Confirmed!', 'ITNs dispatched successfully', [
+    {k:'ID', v:id}, {k:'Destination', v:dest}, {k:'Total', v:pbo+ig2}
+  ]);
+}
+
+function updateDashboardStats() {
+  const total = S.dispatches.length;
+  const received = S.dispatches.filter(d => d.status === 'received').length;
+  const pending = S.dispatches.filter(d => d.status === 'dispatched').length;
+  const issues = S.dispatches.filter(d => d.status === 'blocked').length;
+  
+  document.getElementById('dhmt-stat-total').textContent = total;
+  document.getElementById('dhmt-stat-recv').textContent = received;
+  document.getElementById('dhmt-stat-pending').textContent = pending;
+  document.getElementById('dhmt-stat-issues').textContent = issues;
+  document.getElementById('dhmt-list-summary').textContent = `${total} total · ${pending} pending`;
+}
+
+function renderDHMTList() {
+  const el = document.getElementById('dhmt-dispatch-list');
+  if (!el) return;
+  
+  el.innerHTML = S.dispatches.map(d => `
+    <div style="background:#fff;border-radius:11px;padding:12px;margin-bottom:9px;box-shadow:0 2px 8px rgba(0,0,0,.07);">
+      <div style="display:flex;justify-content:space-between;">
+        <span style="font-weight:700;">${d.id}</span>
+        <span class="bpill ${d.status==='received'?'green':d.status==='dispatched'?'amber':'red'}">${d.status}</span>
+      </div>
+      <div style="font-size:14px;margin:5px 0;">${d.dest}</div>
+      <div><span class="bpill blue">PBO: ${d.pbo}</span> <span class="bpill blue">IG2: ${d.ig2}</span> <span class="bpill blue">Total: ${d.total}</span></div>
+      <div style="font-size:10px;color:var(--text-s);margin-top:5px;">${d.date} · ${d.officer}</div>
+    </div>
+  `).join('');
+}
+
+// ==================== PHU FUNCTIONS ====================
+function phuTab(n) {
+  [1,2,3].forEach(i => {
+    document.getElementById('phu-t'+i).style.display = i===n ? 'flex' : 'none';
+    document.querySelectorAll('#scr-phu .tabt')[i-1].classList.toggle('active', i===n);
+  });
+}
+
+function loadDispatchRef() {
+  const id = document.getElementById('p-dispatch-ref').value;
+  const prev = document.getElementById('p-dispatch-preview');
+  if (!id) {
+    prev.style.display = 'none';
+    return;
+  }
+  
+  const d = S.dispatches.find(x => x.id === id);
+  if (d) {
+    prev.style.display = 'block';
+    prev.innerHTML = `<strong>${d.id}</strong><br>PBO: ${d.pbo} · IG2: ${d.ig2} · Total: ${d.total}<br>From: ${d.officer}`;
+  }
+}
+
+function checkPHUReceipt() {
+  const id = document.getElementById('p-dispatch-ref').value;
+  if (!id) return;
+  
+  const d = S.dispatches.find(x => x.id === id);
+  const pbo = parseInt(document.getElementById('p-pbo-recv').value) || 0;
+  const ig2 = parseInt(document.getElementById('p-ig2-recv').value) || 0;
+  const box = document.getElementById('p-match-box');
+  const btn = document.getElementById('p-recv-btn');
+  
+  box.style.display = 'block';
+  if (pbo === d.pbo && ig2 === d.ig2) {
+    box.style.background = 'var(--green-l)';
+    box.style.border = '2px solid var(--green)';
+    box.innerHTML = '✅ Quantities match!';
+    btn.disabled = false;
+  } else {
+    box.style.background = 'var(--red-l)';
+    box.style.border = '2px solid var(--red)';
+    box.innerHTML = `⛔ Mismatch! Expected: PBO ${d.pbo}, IG2 ${d.ig2}`;
+    btn.disabled = true;
+  }
+}
+
+function submitPHUReceipt() {
+  const id = document.getElementById('p-dispatch-ref').value;
+  const d = S.dispatches.find(x => x.id === id);
+  const pbo = parseInt(document.getElementById('p-pbo-recv').value) || 0;
+  const ig2 = parseInt(document.getElementById('p-ig2-recv').value) || 0;
+  
+  d.status = 'received';
+  S.phuStock.pbo += pbo;
+  S.phuStock.ig2 += ig2;
+  
+  renderPHUStock();
+  updateDashboardStats();
+  showSuccess('Receipt Confirmed!', 'Stock updated', [
+    {k:'Dispatch', v:id}, {k:'PBO Added', v:pbo}, {k:'IG2 Added', v:ig2}
+  ]);
+}
+
+function renderPHUStock() {
+  const el = document.getElementById('phu-stock-preview2');
+  if (el) {
+    el.innerHTML = `<div class="stock-title">PHU Stock</div>
+      <div class="stock-row"><span>PBO</span><span class="stock-val">${S.phuStock.pbo}</span></div>
+      <div class="stock-row"><span>IG2</span><span class="stock-val">${S.phuStock.ig2}</span></div>`;
+  }
+  
+  const detail = document.getElementById('phu-stock-detail');
+  if (detail) {
+    detail.innerHTML = `
+      <div class="srow">
+        <div class="sc"><div class="sn">${S.phuStock.pbo}</div><div class="sl">PBO</div></div>
+        <div class="sc teal"><div class="sn">${S.phuStock.ig2}</div><div class="sl">IG2</div></div>
+      </div>`;
+  }
+}
+
+function checkPHUDispatch() {
+  const pbo = parseInt(document.getElementById('pd-pbo').value) || 0;
+  const ig2 = parseInt(document.getElementById('pd-ig2').value) || 0;
+  document.getElementById('pd-total').textContent = pbo + ig2;
+  
+  const err = document.getElementById('pd-err');
+  if (pbo > S.phuStock.pbo || ig2 > S.phuStock.ig2) {
+    err.textContent = 'Insufficient stock!';
+    err.style.display = 'block';
+    document.getElementById('pd-btn').disabled = true;
+  } else {
+    err.style.display = 'none';
+    document.getElementById('pd-btn').disabled = false;
+  }
+}
+
+function submitPHUDispatch() {
+  const dist = document.getElementById('pd-dist').value;
+  const pbo = parseInt(document.getElementById('pd-pbo').value) || 0;
+  const ig2 = parseInt(document.getElementById('pd-ig2').value) || 0;
+  
+  if (!dist || pbo+ig2 === 0) return;
+  
+  S.phuStock.pbo -= pbo;
+  S.phuStock.ig2 -= ig2;
+  S.phuDispatched.push({dist, pbo, ig2, total: pbo+ig2, date: new Date().toLocaleDateString(), returned: false});
+  
+  renderPHUStock();
+  renderPHUDispatchedList();
+  showSuccess('Dispatched!', 'ITNs sent to distributor', [
+    {k:'Distributor', v:dist}, {k:'PBO', v:pbo}, {k:'IG2', v:ig2}
+  ]);
+}
+
+function renderPHUDispatchedList() {
+  // Update distributor dropdown for returns
+  const select = document.getElementById('ret-dist');
+  if (select) {
+    select.innerHTML = '<option value="">Select Distributor</option>' + 
+      S.phuDispatched.map(d => `<option value="${d.dist}">${d.dist}</option>`).join('');
+  }
+}
+
+// ==================== RETURN MODAL ====================
+function showReturnModal() { document.getElementById('modal-return').classList.add('show'); }
+function closeModal() { 
+  document.getElementById('modal-return').classList.remove('show');
+  document.getElementById('ret-code').value = '';
+}
+
+function confirmReturn() {
+  if (document.getElementById('ret-code').value !== SECRET_CODE) {
+    document.getElementById('ret-code-err').style.display = 'block';
+    return;
+  }
+  
+  const dist = document.getElementById('ret-dist').value;
+  const pbo = parseInt(document.getElementById('ret-pbo').value) || 0;
+  const ig2 = parseInt(document.getElementById('ret-ig2').value) || 0;
+  
+  S.phuStock.pbo += pbo;
+  S.phuStock.ig2 += ig2;
+  
+  const d = S.phuDispatched.find(x => x.dist === dist && !x.returned);
+  if (d) d.returned = true;
+  
+  closeModal();
+  renderPHUStock();
+  showSuccess('Return Confirmed!', 'Stock returned', [
+    {k:'Distributor', v:dist}, {k:'PBO', v:pbo}, {k:'IG2', v:ig2}
+  ]);
+}
+
+// ==================== DISTRIBUTOR FUNCTIONS ====================
+function distTab(n) {
+  [1,2,3].forEach(i => {
+    document.getElementById('dist-t'+i).style.display = i===n ? 'flex' : 'none';
+    document.querySelectorAll('#scr-dist .tabt')[i-1].classList.toggle('active', i===n);
+  });
+}
+
+function renderDistStock() {
+  if (S.role !== 'dist') return;
+  
+  const used = Object.values(S.distDistributed).reduce((s, d) => s + (d.pbo || 0), 0);
+  const remaining = S.user.allocated.pbo - used;
+  const pct = Math.round((used / S.user.allocated.pbo) * 100) || 0;
+  
+  document.getElementById('dist-stock-preview').innerHTML = `
+    <div class="stock-title">My Stock</div>
+    <div class="stock-row"><span>Allocated</span><span class="stock-val">${S.user.allocated.pbo}</span></div>
+    <div class="stock-row"><span>Remaining</span><span class="stock-val" style="color:${remaining<50?'red':'green'}">${remaining}</span></div>
+    <div class="stock-prog"><div class="stock-fill" style="width:${pct}%"></div></div>
+    <div style="font-size:10px;">${pct}% distributed</div>`;
+}
+
+function loadSchoolClassData() {
+  const school = document.getElementById('ds-school').value;
+  if (!school || S.role !== 'dist') return;
+  
+  const schoolData = S.user.schools.find(s => s.name === school);
+  if (!schoolData) return;
+  
+  // Populate class counts
+  for (let c = 1; c <= 5; c++) {
+    const cls = schoolData.classes.find(cls => cls.class === c);
+    if (cls) {
+      document.getElementById(`class${c}-boys-count`).textContent = cls.boys;
+      document.getElementById(`class${c}-girls-count`).textContent = cls.girls;
+    }
+  }
+  
+  // Show/hide sections
+  document.getElementById('ds-school-summary').style.display = 'flex';
+  document.getElementById('ds-school-summary').innerHTML = `
+    <span>Total Students: ${schoolData.classes.reduce((s,cls)=>s+cls.boys+cls.girls,0)}</span>
+    <span>Target: ${schoolData.target}</span>`;
+  
+  document.getElementById('ds-class-table').style.display = 'block';
+  document.getElementById('ds-totals-box').style.display = 'flex';
+  
+  // Disable if already distributed
+  const disabled = !!S.distDistributed[school];
+  document.querySelectorAll('.class-input').forEach(inp => inp.disabled = disabled);
+  document.getElementById('ds-btn').disabled = disabled;
+  
+  if (disabled) {
+    document.getElementById('ds-err').textContent = '✅ Already distributed';
+    document.getElementById('ds-err').style.display = 'block';
+  } else {
+    document.getElementById('ds-err').style.display = 'none';
+  }
+  
+  validateClassDistribution();
+}
+
+function validateClassDistribution() {
+  if (S.role !== 'dist') return;
+  
+  const school = document.getElementById('ds-school').value;
+  const schoolData = S.user.schools.find(s => s.name === school);
+  if (!schoolData) return;
+  
+  let total = 0;
+  let hasError = false;
+  let errorMsg = '';
+  
+  for (let c = 1; c <= 5; c++) {
+    const cls = schoolData.classes.find(cls => cls.class === c);
+    if (!cls) continue;
+    
+    const boys = parseInt(document.getElementById(`class${c}-boys`).value) || 0;
+    const girls = parseInt(document.getElementById(`class${c}-girls`).value) || 0;
+    total += boys + girls;
+    
+    if (boys > cls.boys) {
+      hasError = true;
+      errorMsg = `Class ${c}: Boys exceed ${cls.boys}`;
+    }
+    if (girls > cls.girls) {
+      hasError = true;
+      errorMsg = `Class ${c}: Girls exceed ${cls.girls}`;
+    }
+  }
+  
+  document.getElementById('ds-total').textContent = total;
+  
+  const used = Object.values(S.distDistributed).reduce((s, d) => s + (d.pbo || 0), 0);
+  const remaining = S.user.allocated.pbo - used;
+  
+  if (total > remaining) {
+    hasError = true;
+    errorMsg = `Insufficient stock! You have ${remaining} remaining`;
+  }
+  
+  if (hasError) {
+    document.getElementById('ds-err').textContent = errorMsg;
+    document.getElementById('ds-err').style.display = 'block';
+    document.getElementById('ds-btn').disabled = true;
+  } else {
+    document.getElementById('ds-err').style.display = 'none';
+    document.getElementById('ds-btn').disabled = total === 0;
+  }
+}
+
+function submitClassDistribution() {
+  const school = document.getElementById('ds-school').value;
+  if (!school || S.distDistributed[school]) return;
+  
+  const classData = {};
+  let total = 0;
+  
+  for (let c = 1; c <= 5; c++) {
+    const boys = parseInt(document.getElementById(`class${c}-boys`).value) || 0;
+    const girls = parseInt(document.getElementById(`class${c}-girls`).value) || 0;
+    classData[c] = {boys, girls};
+    total += boys + girls;
+  }
+  
+  if (total === 0) return;
+  
+  S.distDistributed[school] = {pbo: total, classData};
+  
+  renderDistStock();
+  renderSchoolsList();
+  renderDistSummary();
+  
+  showSuccess('Distribution Recorded!', `ITNs distributed to ${school}`, [
+    {k:'School', v:school}, {k:'Total ITNs', v:total}
+  ]);
+}
+
+function renderSchoolsList() {
+  if (S.role !== 'dist') return;
+  
+  const el = document.getElementById('dist-schools-list');
+  el.innerHTML = S.user.schools.map(s => {
+    const dist = S.distDistributed[s.name];
+    const given = dist ? dist.pbo : 0;
+    const pct = Math.round((given / s.target) * 100) || 0;
+    
+    return `<div class="dist-card">
+      <div class="dist-school">${s.name}</div>
+      <div class="dist-meta">
+        <span class="bpill blue">Target: ${s.target}</span>
+        <span class="bpill ${given ? 'green' : 'amber'}">Given: ${given}</span>
+        <span class="bpill ${given >= s.target ? 'green' : 'red'}">Rem: ${s.target - given}</span>
+        <span class="bpill blue">${pct}%</span>
+      </div>
+      <div class="dist-prog-wrap"><div class="dist-prog-fill" style="width:${pct}%"></div></div>
+    </div>`;
+  }).join('');
+}
+
+function renderDistSummary() {
+  if (S.role !== 'dist') return;
+  
+  const used = Object.values(S.distDistributed).reduce((s, d) => s + (d.pbo || 0), 0);
+  const totalTarget = S.user.schools.reduce((s, x) => s + x.target, 0);
+  const coverage = Math.round((used / totalTarget) * 100) || 0;
+  
+  // Class totals
+  const classTotals = {1:0,2:0,3:0,4:0,5:0};
+  Object.values(S.distDistributed).forEach(d => {
+    if (d.classData) {
+      for (let c = 1; c <= 5; c++) {
+        if (d.classData[c]) {
+          classTotals[c] += (d.classData[c].boys + d.classData[c].girls);
+        }
+      }
+    }
+  });
+  
+  const classRows = Object.keys(classTotals).map(c => 
+    `<tr><td>Class ${c}</td><td>${classTotals[c]}</td></tr>`
+  ).join('');
+  
+  document.getElementById('dist-summary').innerHTML = `
+    <div class="srow">
+      <div class="sc"><div class="sn">${S.user.allocated.pbo}</div><div class="sl">Allocated</div></div>
+      <div class="sc green"><div class="sn">${used}</div><div class="sl">Distributed</div></div>
+      <div class="sc orange"><div class="sn">${S.user.allocated.pbo - used}</div><div class="sl">Remaining</div></div>
+      <div class="sc teal"><div class="sn">${coverage}%</div><div class="sl">Coverage</div></div>
+    </div>
+    <table class="tbl">
+      <tr><th>Class</th><th>ITNs</th></tr>
+      ${classRows}
+      <tr class="tot"><td>TOTAL</td><td>${used}</td></tr>
+    </table>`;
+}
+
+// ==================== SUCCESS SCREEN ====================
+function showSuccess(title, sub, rows) {
+  document.getElementById('suc-title').textContent = title;
+  document.getElementById('suc-sub').textContent = sub;
+  document.getElementById('suc-meta').innerHTML = rows.map(r => 
+    `<div class="suc-r"><span class="suc-k">${r.k}</span><span class="suc-v">${r.v}</span></div>`
+  ).join('');
+  go('scr-success');
+}
+
+// ==================== TRAIL / INFO PANEL ====================
+const JOURNEYS = {
+  dhmt: ['Splash', 'Login', 'DHMT Dashboard', 'New Dispatch', 'Records', 'Success'],
+  phu: ['Splash', 'Login', 'PHU Dashboard', 'Receive', 'Dispatch', 'Stock', 'Success'],
+  dist: ['Splash', 'Login', 'Distributor', 'Distribute', 'Schools', 'Summary', 'Success']
+};
+
+const NOTES = {
+  'scr-splash': 'App launch screen',
+  'scr-login': 'Use: dhmt_kono/pass123, phu_koidu/pass123, dist_aminata/pass123',
+  'scr-dhmt': 'Create and track dispatches to PHUs',
+  'scr-phu': 'Receive from DHMT, dispatch to distributors',
+  'scr-dist': 'Distribute ITNs to schools by class and gender'
+};
+
+function updateTrail() {
+  const role = S.role || 'dhmt';
+  const journey = JOURNEYS[role];
+  const steps = ['scr-splash','scr-login','scr-'+role,'scr-success'];
+  const curIdx = steps.indexOf(curScreen);
+  
+  document.getElementById('trail').innerHTML = journey.map((step, i) => {
+    const cls = i < curIdx ? 'done' : i === curIdx ? 'cur' : 'todo';
+    return `<div class="tli ${cls}"><span class="tdot"></span>${step}</div>`;
+  }).join('');
+  
+  document.getElementById('inote').innerHTML = NOTES[curScreen] || 'Navigate through the app';
+}
+
+// Initialize
+updateTrail();
+</script>
+</body>
+</html>
